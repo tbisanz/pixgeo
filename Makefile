@@ -4,7 +4,7 @@ MYPROG_SRC = MyProg.cpp
 
 DH_EXE = DrawHit
 DH_SRC = DrawHit.cpp
-DH_OBJ = build/DrawHit.o build/ReadEvent.o build/EventDefines_h.so
+DH_OBJ = build/DrawHit.o build/EventDefines_h.so
 
 MC_EXE = MyMcGenerator
 MC_SRC = MyMcGenerator.cpp
@@ -12,7 +12,7 @@ MC_OBJ = geolibs/build/Rectangle.o build/EventDefines_h.so
 
 ETACLU_EXE = EtaClustering
 ETACLU_SRC = EtaClustering.cpp
-ETACLU_OBJ = build/ReadEvent.o build/EtaClustering.o build/EventDefines_h.so
+ETACLU_OBJ = build/EtaClustering.o build/EventDefines_h.so
 
 CXX      = g++
 CXXFLAGS = -Wall -std=c++11 -fPIC -Igeolibs -Lgeolibs $(shell root-config --cflags)
@@ -63,9 +63,6 @@ build/MyProg.o: MyProg.cpp geolibs/PixelGeoDescr.h geolibs/Shape.h geolibs/SvgDe
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 build/MyMcGenerator.o: MyProg.cpp geolibs/PixelGeoDescr.h Shape.h Rectangle.h SvgDefines.h EventDefines.h
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-build/DrawHit.o: DrawHit.cpp geolibs/PixelGeoDescr.h SvgDefines.h ReadEvent.h EventDefines.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 build/ReadEvent.o: ReadEvent.cpp EventDefines.h
