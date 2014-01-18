@@ -65,9 +65,9 @@ build/MyProg.o: MyProg.cpp geolibs/PixelGeoDescr.h geolibs/Shape.h geolibs/SvgDe
 build/MyMcGenerator.o: MyProg.cpp geolibs/PixelGeoDescr.h Shape.h Rectangle.h SvgDefines.h EventDefines.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-build/DrawHit.o: DrawHit.cpp geolibs/PixelGeoDescr.h SvgDefines.h ReadEvent.h EventDefines.h
+build/DrawHit.o: DrawHit.cpp geolibs/PixelGeoDescr.h SvgDefines.h EventDefines.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-build/EtaClustering.o: EtaClustering.cpp geolibs/PixelGeoDescr.h EventDefines.h ReadEvent.h
+build/EtaClustering.o: EtaClustering.cpp geolibs/PixelGeoDescr.h EventDefines.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
