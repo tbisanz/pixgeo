@@ -1,0 +1,115 @@
+#Programs:
+MYPROG_EXE = MyProg
+MYPROG_SRC = MyProg.cpp
+
+DH_EXE = DrawHit
+DH_SRC = DrawHit.cpp
+DH_OBJ = DrawHit.o ReadEvent.o EventDefines_h.so
+
+MC_EXE = MyMcGenerator
+MC_SRC = MyMcGenerator.cpp
+MC_OBJ = Rectangle.o EventDefines_h.so
+
+ETACLU_EXE = EtaClustering
+ETACLU_SRC = EtaClustering.cpp
+ETACLU_OBJ = ReadEvent.o EtaClustering.o EventDefines_h.so
+
+#Shared Pixel Libs:
+MYPIXGEO_SHL = MyPixelGeoDescr.so
+MYPIXGEO_OBJ = MyPixelGeoDescr.o Rectangle.o
+
+MYOTHERPIXGEO_SHL = MyOtherPixelGeoDescr.so
+MYOTHERPIXGEO_OBJ = MyOtherPixelGeoDescr.o Rectangle.o
+
+LONGEDGEPIXELGEO_SHL = LongEdgePixelGeo.so
+LONGEDGEPIXELGEO_OBJ = LongEdgePixelGeo.o Rectangle.o
+
+SMALLLGEO_SHL = SmallLGeo.so
+SMALLLGEO_OBJ = SmallLGeo.o Rectangle.o
+
+STRIPGEO_SHL = StripGeo.so
+STRIPGEO_OBJ = StripGeo.o Rectangle.o
+
+CXX      = g++
+CXXFLAGS = -Wall -std=c++11 -fPIC -I/geolibs/ $(shell root-config --cflags)
+LDFLAGS  = -ldl $(shell root-config --libs) 
+
+all: $(MYPROG_EXE) $(MYPIXGEO_SHL) $(MYOTHERPIXGEO_SHL) $(LONGEDGEPIXELGEO_SHL) $(SMALLLGEO_SHL) $(STRIPGEO_SHL)
+
+mc: $(MC_OBJ) $(MC_EXE) $(MYPIXGEO_SHL) $(MYOTHERPIXGEO_SHL) $(LONGEDGEPIXELGEO_SHL) $(SMALLLGEO_SHL) $(STRIPGEO_SHL)
+
+dh: $(DH_OBJ) $(DH_EXE) $(MYPIXGEO_SHL) $(MYOTHERPIXGEO_SHL) $(LONGEDGEPIXELGEO_SHL) $(SMALLLGEO_SHL) $(STRIPGEO_SHL)
+
+eta: $(ETACLU_EXE) $(MYPIXGEO_SHL) $(MYOTHERPIXGEO_SHL) $(LONGEDGEPIXELGEO_SHL) $(SMALLLGEO_SHL) $(STRIPGEO_SHL)
+
+.PHONY: clean all
+
+clean: 
+	rm -f $(MYPIXGEO_SHL) $(MYPIXGEO_OBJ)  $(MYOTHERPIXGEO_SHL) $(MYOTHERPIXGEO_OBJ) $(SMALLLGEO_SHL) $(SMALLLGEO_OBJ) \
+	 $(LONGEDGEPIXELGEO_SHL) $(LONGEDGEPIXELGEO_OBJ)  $(STRIPGEO_SHL) $(STRIPGEO_OBJ)\
+	$(MYPROG_EXE) $(DH_EXE) $(DH_OBJ)  $(MC_EXE) $(MC_OBJ) $(ETACLU_OBJ) $(ETACLU_EXE)
+
+#Program EXEs:
+$(MYPROG_EXE): $(MYPROG_SRC)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+$(MC_EXE): $(MC_SRC)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(MC_OBJ) $(LDFLAGS)
+
+$(DH_EXE): $(DH_OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $^  $(LDFLAGS)
+
+$(ETACLU_EXE): $(ETACLU_OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) 
+
+#Geo shared libs
+$(MYPIXGEO_SHL): $(MYPIXGEO_OBJ)
+	$(CXX) -shared -o $@ $^
+
+$(MYOTHERPIXGEO_SHL): $(MYOTHERPIXGEO_OBJ)
+	$(CXX) -shared -o $@ $^
+
+$(LONGEDGEPIXELGEO_SHL): $(LONGEDGEPIXELGEO_OBJ)
+	$(CXX) -shared -o $@ $^
+
+$(SMALLLGEO_SHL):  $(SMALLLGEO_OBJ)
+	$(CXX) -shared -o $@ $^
+
+ $(STRIPGEO_SHL):  $(STRIPGEO_OBJ)
+	$(CXX) -shared -o $@ $^
+
+# --- object dependencies ---
+
+MyPixelGeoDescr.o: MyPixelGeoDescr.cpp MyPixelGeoDescr.h PixelGeoDescr.h Shape.h Rectangle.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+MyOtherPixelGeoDescr.o: MyOtherPixelGeoDescr.cpp MyOtherPixelGeoDescr.h PixelGeoDescr.h Shape.h Rectangle.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+LongEdgePixelGeo.o: LongEdgePixelGeo.cpp LongEdgePixelGeo.h PixelGeoDescr.h Shape.h Rectangle.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+SmallLGeo.o: SmallLGeo.cpp SmallLGeo.h PixelGeoDescr.h Shape.h Rectangle.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+StripGeo.o: StripGeo.cpp StripGeo.h PixelGeoDescr.h Shape.h Rectangle.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+MyProg.o: MyProg.cpp PixelGeoDescr.h Shape.h SvgDefines.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+MyMcGenerator.o: MyProg.cpp PixelGeoDescr.h Shape.h Rectangle.h SvgDefines.h EventDefines.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+DrawHit.o: DrawHit.cpp PixelGeoDescr.h SvgDefines.h ReadEvent.h EventDefines.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+Rectangle.o: Rectangle.cpp Rectangle.h Shape.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+ReadEvent.o: ReadEvent.cpp EventDefines.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+EtaClustering.o: EtaClustering.cpp PixelGeoDescr.h EventDefines.h ReadEvent.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
