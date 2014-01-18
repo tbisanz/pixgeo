@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 
 	//process cli arguments
 	std::string lib = "MyPixelGeoDescr.so";
-	std::string out = "SimOutput.txt";
+	//std::string out = "SimOutput.txt";
 	std::string outRoot = "SimOutput.root";
 
 	int events = 1000;
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 	{
 		std::string s (argv[i]);
 		if(s=="-lib")		lib=argv[i+1];
-		else if(s=="-o")	out=argv[i+1];
+		//else if(s=="-o")	out=argv[i+1];
 		else if(s=="-s")	sigma=atof(argv[i+1]);
 		else if(s=="-n")	events=atoi(argv[i+1]);
 	}
@@ -46,6 +46,9 @@ int main(int argc, char *argv[])
 	TFile* myTFile = new TFile(("output/"+outRoot).c_str(), "RECREATE");
 	myTFile->cd();
 	TTree* tree = new TTree("tree", "my tree");
+	TObjString* libstring = new TObjString(lib.c_str());
+	libstring->Print("");
+	libstring->Write("library name");
 
 	//Load shared library, be sure to export the path of the lib to LD_LIBRARY_PATH!
 	void *hndl = dlopen(lib.c_str(), RTLD_NOW);
@@ -66,8 +69,8 @@ int main(int argc, char *argv[])
 	std::uniform_real_distribution<> disY(offset, my_PixelGeoDescr->getSizeY()-offset);
 	
 	//Set the output file
-	std::ofstream outputFile("output/"+out);
-	outputFile << lib << "\n";
+	//std::ofstream outputFile("output/"+out);
+	//outputFile << lib << "\n";
 	
 	double hitX;
 	double hitY;
@@ -166,14 +169,14 @@ int main(int argc, char *argv[])
 		}//Pixel x loop
 
 		//Write event information
-		outputFile << "***\n";
+		/*outputFile << "***\n";
 		outputFile << "Event: " << n << " charge: " << totalCharge << "\n";
 		outputFile << "HitInfo: " << hitX << " " << hitY << " " << sigma <<"\n";
 
 		for (auto it = begin(hitVec); it != end(hitVec); ++it)
 		{
 			outputFile << it->x << " " << it->y << " " << it->charge << "\n";
-		} 
+		} */
 
 	tree->Fill();
 
@@ -183,7 +186,7 @@ int main(int argc, char *argv[])
 	myTFile->Close();
 
 	//cleanup and return 1 to OS
-	outputFile.close();
+	//outputFile.close();
 	//delete tree;
 	delete myTFile;
 	delete my_PixelGeoDescr;
