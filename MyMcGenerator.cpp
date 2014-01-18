@@ -1,19 +1,22 @@
-#include "PixelGeoDescr.h"
-#include "SvgDefines.h"
+//std includes
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <list>
-#include <dlfcn.h>
 #include "stdlib.h"
 #include <cmath>
 #include <random>
-#include "Rectangle.h"
-#include "EventDefines.h"
 #include <iomanip>
 
-//Root includes
+//dynamic linker
+#include <dlfcn.h>
 
+//Geometry and Event includes
+#include "PixelGeoDescr.h"
+#include "Rectangle.h"
+#include "EventDefines.h"
+
+//Root includes
 #include "TFile.h"
 #include "TTree.h"
 
@@ -28,7 +31,6 @@ int main(int argc, char *argv[])
 
 	//process cli arguments
 	std::string lib = "MyPixelGeoDescr.so";
-	//std::string out = "SimOutput.txt";
 	std::string outRoot = "SimOutput.root";
 
 	int events = 1000;
@@ -38,11 +40,11 @@ int main(int argc, char *argv[])
 	{
 		std::string s (argv[i]);
 		if(s=="-lib")		lib=argv[i+1];
-		//else if(s=="-o")	out=argv[i+1];
 		else if(s=="-s")	sigma=atof(argv[i+1]);
 		else if(s=="-n")	events=atoi(argv[i+1]);
 	}
 
+	
 	TFile* myTFile = new TFile(("output/"+outRoot).c_str(), "RECREATE");
 	myTFile->cd();
 	TTree* tree = new TTree("tree", "my tree");
@@ -67,10 +69,6 @@ int main(int argc, char *argv[])
 	//Get the size of the pixels and prepare the distributions!
 	std::uniform_real_distribution<> disX(offset, my_PixelGeoDescr->getSizeX()-offset);
 	std::uniform_real_distribution<> disY(offset, my_PixelGeoDescr->getSizeY()-offset);
-	
-	//Set the output file
-	//std::ofstream outputFile("output/"+out);
-	//outputFile << lib << "\n";
 	
 	double hitX;
 	double hitY;
@@ -167,16 +165,6 @@ int main(int argc, char *argv[])
 			}
 			}//Pixel y loop
 		}//Pixel x loop
-
-		//Write event information
-		/*outputFile << "***\n";
-		outputFile << "Event: " << n << " charge: " << totalCharge << "\n";
-		outputFile << "HitInfo: " << hitX << " " << hitY << " " << sigma <<"\n";
-
-		for (auto it = begin(hitVec); it != end(hitVec); ++it)
-		{
-			outputFile << it->x << " " << it->y << " " << it->charge << "\n";
-		} */
 
 	tree->Fill();
 

@@ -1,6 +1,7 @@
 #ifndef __EVENTDEFINES_H
 #define __EVENTDEFINES_H
 
+//std includes
 #include <vector>
 
 //ROOT includes
@@ -18,18 +19,5 @@ public:
 	double charge;
 	
 };
-
-class event
-{
-
-public:
-	int eventNo;
-	std::vector<hit> hitVec;
-	double realHitX;
-	double realHitY;
-	double sigma;
-};
-
-	
 
 #endif //__EVENTDEFINES_H

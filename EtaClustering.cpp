@@ -1,15 +1,14 @@
-//Pixel geometry
+//Geometry and Event includes
 #include "PixelGeoDescr.h"
-//Defines
 #include "EventDefines.h"
-//Read event
-//#include "ReadEvent.h"
 
+//std inlcudes
 #include <iostream>
 #include <list>
 #include <cmath>
 #include <set>
 #include <cstdlib>
+
 //dynamic linker
 #include <dlfcn.h>
 

@@ -1,18 +1,16 @@
-//Pixel geometry
+//Geometry, SVG and Event includes
 #include "PixelGeoDescr.h"
-//Defines
 #include "SvgDefines.h"
 #include "EventDefines.h"
-//Read event
-//#include "ReadEvent.h"
-#include <iostream>
 
+//std includes
+#include <iostream>
 #include <sstream>
 #include <list>
 #include <cmath>
 #include <set>
-
 #include <cstdlib>
+
 //linker
 #include <dlfcn.h>
 
@@ -34,36 +32,26 @@ int main(int argc, char *argv[])
 	TApplication tApp("App", &arga, argb);
 
 	//in- & out-put files as well as pixelgeolibrary, latter gets read in from file
+	
 	std::string lib;
 	std::string rootinp = "SimOutput.root";
 	std::string out = "hitMap.svg";
-	
-	//std::vector<event> eventVec;
+	int drawEvent = 0;
 
-	int drawEvent = 1;
-
+	//process cli arguments
 	for(int i=1; i<argc; i+=2)
 	{
-		//std::cout << argv[i] << std::endl;
-		std::string s (argv[i]);
-		//if(s=="-inp")		inp=argv[i+1];
-		if(s=="-o")	out=argv[i+1];
+		std::string s(argv[i]);
+		if(s=="-o")		out=argv[i+1];
 		else if(s=="-n")	drawEvent=atoi(argv[i+1]);
-
 	}
 	
-
+	//Open TFile and get library name from it
 	TFile* inpTFile = new TFile(("output/"+rootinp).c_str());
 	TTree* tree = (TTree*)inpTFile->Get("tree");
 	TObjString* tstringlib = (TObjString*)inpTFile->Get("library name");
 	lib = (tstringlib->GetString()).Data();
 
-
-	/*if(!ReadEvent("output/"+inp, eventVec, lib))
-	{
-		std::cout << "Could not process input file, terminating!" << std::endl;
-		return -1;
-	}*/
 	
 	//Load shared library, be sure to export the path of the lib to LD_LIBRARY_PATH!
 	void *hndl = dlopen(lib.c_str(), RTLD_NOW);
@@ -77,9 +65,9 @@ int main(int argc, char *argv[])
 	void *mkr = dlsym(hndl, "maker");
 	PixelGeoDescr* my_PixelGeoDescr = reinterpret_cast<PixelGeoDescr*(*)()>(mkr)();
 
-	//The rest is drawing the pixel geometry by obtaining the vector containing all the shapes foe each pixel
-	//The scale sets how many microns should be one pixel, if your description uses one place after the comma then set
-	//this amount as the scale, e.g. 0.1 and so forth, if you don't this you have to live with (nasty) rounding
+	/*The rest is drawing the pixel geometry by obtaining the vector containing all the shapes for each pixel
+	The scale sets how many microns should be one pixel, if your description uses one place after the comma then set
+	this amount as the scale, e.g. 0.1 and so forth, if you don't this you have to live with (nasty) rounding*/
 	double scale = 1;
 
 
@@ -87,25 +75,26 @@ int main(int argc, char *argv[])
 	double realHitX;
 	double realHitY;
 	double sigma;
-	double totalCharge;
 	std::vector<hit>* hitVec = nullptr;
 
 	//Create TBranches for all branches in our TTree
 	TBranch* brHitXPos = tree->GetBranch("HitXPos");
 	TBranch* brHitYPos = tree->GetBranch("HitYPos");
 	TBranch* brSigma = tree->GetBranch("Sigma");
-	TBranch* brTotCharge = tree->GetBranch("TotalCharge");
 	TBranch* brHitVec = nullptr;
 
 	//Set the variables to the correct address
 	brHitXPos->SetAddress(&realHitX);
 	brHitYPos->SetAddress(&realHitY);
 	brSigma->SetAddress(&sigma);
-	brTotCharge->SetAddress(&totalCharge);
 	tree->SetBranchAddress("Hits", &hitVec, &brHitVec);
 
+	//Get the event which should be drawn
 	tree->GetEvent(drawEvent);
 
+	/*And now the vector containing the hits 
+	(is actually obsolete, but now we don't need to dereference
+	all the time and overhead is negligible)*/
 	std::vector<hit> eventHits = *hitVec;
 
 	//Set the output file and compute the svg size
@@ -117,7 +106,7 @@ int main(int argc, char *argv[])
 	std::list<std::string> coloursBlue = svg::BLUELIST;
 	std::string colour;
 
-
+	//Create a set of hits as pairs, this allows faster lookup
 	std::set<std::pair<int, int>> hits;
 	for (auto it = begin(eventHits); it != end(eventHits); ++it)
 	{
@@ -130,7 +119,7 @@ int main(int argc, char *argv[])
 	{
 		for(int j = 0; j<my_PixelGeoDescr->getNoPixelsY() ; j++)
 		{
-			//std::pair rep of current pixel
+			//std::pair representation of current pixel
 			std::pair<int, int> currentPixel = std::make_pair(i,j);
 
 			//if the pixel is in the hit collection, draw it in corresponding colour
