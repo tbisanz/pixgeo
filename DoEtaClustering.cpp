@@ -3,7 +3,7 @@
 //Defines
 #include "EventDefines.h"
 //Read event
-//#include "ReadEvent.h"
+#include "ReadEvent.h"
 
 #include <iostream>
 #include <list>
@@ -25,14 +25,14 @@ int main(int argc, char *argv[])
 {
 	int arga = 0;
 	char **argb = nullptr;
-	TApplication tApp("App", &arga, argb);
+	 TApplication tApp("App", &arga, argb);
 
 	//in- & out-put files as well as pixelgeolibrary, latter gets read in from file
 	std::string lib;
 	std::string inp = "SimOutput.txt";
 	std::string rootinp = "SimOutput.root";
 	
-	//std::vector<event> eventVec;
+	std::vector<event> eventVec;
 
 	for(int i=1; i<argc; i+=2)
 	{
@@ -41,17 +41,13 @@ int main(int argc, char *argv[])
 		if(s=="-inp")		inp=argv[i+1];
 	}
 	
-	/*if(!ReadEvent("output/"+inp, eventVec, lib))
+	if(!ReadEvent("output/"+inp, eventVec, lib))
 	{
 		std::cout << "Could not process input file, terminating!" << std::endl;
 		return -1;
-	}*/
+	}
 	
-	TFile* inpTFile = new TFile(("output/"+rootinp).c_str());
-	TTree* tree = (TTree*)inpTFile->Get("tree");
-	TObjString* tstringlib = (TObjString*)inpTFile->Get("library name");
-	lib = (tstringlib->GetString()).Data();
-	std::cout << lib << std::endl;
+
 
 
 	//Load shared library, be sure to export the path of the lib to LD_LIBRARY_PATH!
@@ -66,6 +62,8 @@ int main(int argc, char *argv[])
 	void *mkr = dlsym(hndl, "maker");
 	PixelGeoDescr* my_PixelGeoDescr = reinterpret_cast<PixelGeoDescr*(*)()>(mkr)();
 
+	TFile* inpTFile = new TFile(("output/"+rootinp).c_str());
+	TTree* tree = (TTree*)inpTFile->Get("tree");
 
 
 	//Variables to be read from TTree
@@ -182,7 +180,6 @@ int main(int argc, char *argv[])
 		etacorr->SetBinContent(bin, eta->Integral(1,bin)/norm);
 	}
 
-	std::cout << "done calculating" << std::endl;
 	chargeMost->Write();
 	chargeSecond->Write();
 	etacorr->Write();
@@ -190,16 +187,15 @@ int main(int argc, char *argv[])
 	resXnaive->Write();
 	hitXHisto->Write();
 	hitYHisto->Write();
-	std::cout << "done writing" << std::endl;
 	myTFile->Close();
-	std::cout << "closed tfile" << std::endl;
 
-	/*std::set<std::pair<int, int>> hits;
+
+	std::set<std::pair<int, int>> hits;
 
 	for (auto it = begin((eventVec.at(0)).hitVec); it != end((eventVec.at(0)).hitVec); ++it)
 	{
 		hits.insert(std::make_pair(it->x, it->y));
-	}*/
+	}
 
 	
 	//clean up and return 1 to OS
